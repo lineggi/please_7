@@ -137,6 +137,7 @@ footer a { color: inherit; }
     <button class="tab" id="tab-g" data-area="문법" aria-pressed="false">국어 문법</button>
     <button class="tab" id="tab-h" data-area="한문" aria-pressed="false">한문</button>
     <button class="tab" id="tab-s" data-area="한시" aria-pressed="false">한시</button>
+    <button class="tab" id="tab-notebook" aria-controls="notebook" aria-expanded="false">오답노트</button>
   </div>
 
   <p class="meta">새 세트는 문제은행에서 영역별 10문항을 조합합니다. 한시 10문항은 다시 출제되며, 다른 영역도 반복될 수 있습니다.</p>
@@ -532,7 +533,7 @@ function render() {
   $("progress").textContent = state.graded ? "채점 완료 · 오답노트에 저장했습니다." : answered === items.length ? "모두 풀었습니다. 채점하기를 눌러 결과를 확인하세요." : "답안 선택 후 채점하기를 눌러 주세요.";
   renderNotes();
 
-  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-pressed", String(t.dataset.area === state.area)));
+  document.querySelectorAll(".tab[data-area]").forEach(t => t.setAttribute("aria-pressed", String(t.dataset.area === state.area)));
 
   $("result").hidden = !state.graded;
   if (state.graded) {
@@ -561,7 +562,7 @@ $("omr").addEventListener("click", (e) => {
   const b = e.target.closest("[data-jump]");
   if (b) { const el = $("q" + b.dataset.jump); if (el) el.scrollIntoView(); }
 });
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+document.querySelectorAll(".tab[data-area]").forEach(t => t.addEventListener("click", () => {
   state.area = t.dataset.area; state.graded = false; state.onlyWrong = false;
   state.picks = {}; state.started = Date.now(); state.stoppedAt = null;
   save(); render(); tick(); window.scrollTo(0, 0);
@@ -574,6 +575,15 @@ $("reset").addEventListener("click", () => {
   save(); render(); tick(); window.scrollTo(0, 0);
 });
 $("onlyWrong").addEventListener("change", (e) => { state.onlyWrong = e.target.checked; save(); render(); });
+
+$("tab-notebook").addEventListener("click", () => {
+  $("notebook").open = true;
+  $("notebookTitle").focus({preventScroll: true});
+  $("notebook").scrollIntoView({block: "start"});
+});
+$("notebook").addEventListener("toggle", () => {
+  $("tab-notebook").setAttribute("aria-expanded", String($("notebook").open));
+});
 
 $("notebookItems").addEventListener("click", (e) => {
   const button = e.target.closest("[data-remove-note]");
