@@ -83,6 +83,8 @@ details.trend p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
 .q.is-wrong .explain { border-left-color: var(--bad); }
 .q.is-wrong .explain b { color: var(--bad); }
 aside.omr { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--sheet); border: 1.5px solid var(--omr); border-radius: 6px; padding: 12px 12px 14px; }
+.omr-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.omr-close, .omr-open { display: none; }
 .omr h3 { margin: 0 0 2px; font-size: 13px; color: var(--omr); letter-spacing: .08em; }
 .omr .count { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
 .omr-list { max-height: 52vh; overflow-y: auto; border-top: 1px solid var(--omr-soft); }
@@ -108,9 +110,17 @@ aside.omr { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); b
 footer { margin-top: 32px; color: var(--muted); font-size: 12.5px; }
 footer a { color: inherit; }
 @media (max-width: 860px) {
-  .wrap { padding-block: 20px 170px; }
+  .wrap { padding-block: 20px calc(var(--omr-height, 230px) + 32px); }
+  body.omr-closed .wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  .omr-close { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 0; border-radius: 6px; background: transparent; color: var(--ink); font-size: 26px; cursor: pointer; }
+  .omr-close:focus-visible { outline: 2px solid var(--omr); }
+  body.omr-closed aside.omr { display: none; }
+  body.omr-closed .omr-open { display: block; position: fixed; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); right: 16px; min-height: 44px; z-index: 5; box-shadow: 0 2px 12px rgba(0,0,0,.16); }
   .grid { grid-template-columns: minmax(0, 1fr); }
-  aside.omr { position: fixed; left: 0; right: 0; bottom: 0; top: auto; border-radius: 12px 12px 0 0; border-width: 1.5px 0 0; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5; box-shadow: 0 -6px 20px rgba(0,0,0,.08); }
+  .tab, .btn { min-height: 44px; }
+  .choice { min-height: 44px; align-items: center; }
+  .notebook summary { min-height: 44px; display: list-item; padding-block: 10px; }
+  aside.omr { max-height: 60dvh; overflow-y: auto; overscroll-behavior: contain; position: fixed; left: 0; right: 0; bottom: 0; top: auto; border-radius: 12px 12px 0 0; border-width: 1.5px 0 0; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5; box-shadow: 0 -6px 20px rgba(0,0,0,.08); }
   .omr-list { display: none; }
   .omr .count { margin-bottom: 0; }
   .actions { margin-top: 8px; }
@@ -154,8 +164,8 @@ footer a { color: inherit; }
 
   <div class="grid">
     <main class="sheet" id="sheet"></main>
-    <aside class="omr" aria-label="답안지">
-      <h3>OMR 답안지</h3>
+    <aside class="omr" id="answerPanel" aria-label="답안지">
+      <div class="omr-heading"><h3>OMR 답안지</h3><button type="button" class="omr-close" id="closeOmr" aria-label="OMR 답안지 닫기">×</button></div>
       <div class="count" id="count"></div>
       <div class="meta" id="progress" role="status"></div>
       <div class="omr-list" id="omr"></div>
@@ -171,6 +181,8 @@ footer a { color: inherit; }
       </div>
     </aside>
   </div>
+
+  <button type="button" class="btn omr-open" id="openOmr" aria-controls="answerPanel" aria-expanded="false">답안지 열기</button>
 
   <details class="notebook" id="notebook">
     <summary id="notebookTitle">오답노트</summary>
@@ -573,6 +585,20 @@ $("reset").addEventListener("click", () => {
   save(); render(); window.scrollTo(0, 0);
 });
 $("onlyWrong").addEventListener("change", (e) => { state.onlyWrong = e.target.checked; save(); render(); });
+
+$("closeOmr").addEventListener("click", () => {
+  document.body.classList.add("omr-closed");
+  $("openOmr").setAttribute("aria-expanded", "false");
+  $("openOmr").focus({preventScroll:true});
+});
+$("openOmr").addEventListener("click", () => {
+  document.body.classList.remove("omr-closed");
+  $("openOmr").setAttribute("aria-expanded", "true");
+  $("closeOmr").focus({preventScroll:true});
+});
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty("--omr-height", `${$("answerPanel").getBoundingClientRect().height}px`);
+}).observe($("answerPanel"));
 
 $("tab-notebook").addEventListener("click", () => {
   $("notebook").open = true;
