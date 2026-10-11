@@ -3,11 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>7급 국어 기출 모의고사</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<title>7급 국어 유형 연습 모의고사</title>
 <style>
+@font-face { font-family: "Pretendard"; src: url("assets/fonts/PretendardVariable.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 /* Layout: 시험지 한 장 — 왼쪽 문제지, 오른쪽(모바일은 하단 고정) OMR 답안지 */
 :root {
   --paper: #fbfbf8;
@@ -21,9 +19,9 @@
   --ok-soft: #e4f3ea;
   --bad: #b3261e;
   --bad-soft: #fbe7e5;
-  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --font-text: "Noto Serif KR", "Batang", "AppleMyungjo", serif;
-  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+  --font-body: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-text: var(--font-body);
+  --font-num: var(--font-body);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -135,7 +133,7 @@ footer a { color: inherit; }
   <header class="top">
     <div>
       <div class="eyebrow">지방직 7급 국어(한문 포함) 기출 유형</div>
-      <h1>7급 국어 기출 모의고사</h1>
+      <h1>7급 국어 유형 연습 모의고사</h1>
       <div class="meta">국어 문법 10문항 · 한문 5문항 · 한시 5문항, 모두 20문항</div>
     </div>
   </header>
@@ -148,7 +146,7 @@ footer a { color: inherit; }
     <button class="tab" id="tab-notebook" aria-controls="notebook" aria-expanded="false">오답노트</button>
   </div>
 
-  <p class="meta">새 세트는 문제은행에서 문법 10문항, 한문·한시 각 5문항을 조합합니다. 일부 문제는 반복될 수 있습니다.</p>
+  <p class="meta">새 세트는 문제은행에서 문법 10문항, 한문·한시 각 5문항을 조합합니다. 일부 문제는 반복될 수 있습니다. 실제 기출 원문이 아닌 창작 연습문제입니다.</p>
   <details class="trend">
     <summary>최근 기출 출제 경향 (2020–2025 지방직 7급)</summary>
     <ul>
@@ -290,9 +288,9 @@ const BASE_Q = [
     explain: "爲는 '~라고 하다', 是는 '이것'입니다. 공자가 제자 자로(子路)에게 앎의 태도를 일러 준 구절입니다." },
   { area: "한문", tag: "빈출 유형 · 한자어 관계",
     stem: "두 한자어의 의미 관계가 나머지와 다른 것은?",
-    choices: ["需要 – 供給", "樂觀 – 悲觀", "漸進 – 徐行", "抽象 – 具體"],
+    choices: ["樂觀 – 悲觀", "增加 – 減少", "喜悅 – 歡喜", "抽象 – 具體"],
     answer: 3,
-    explain: "漸進(점진)과 徐行(서행)은 모두 천천히 나아간다는 뜻으로 유의 관계입니다. 나머지는 반의 관계이며 漸進의 반의어는 急進입니다." },
+    explain: "喜悅(희열)과 歡喜(환희)는 모두 기쁨을 뜻하는 유의 관계입니다. 樂觀(낙관)–悲觀(비관), 增加(증가)–減少(감소), 抽象(추상)–具體(구체)는 반의 관계입니다." },
   { area: "한문", tag: "빈출 유형 · 상황에 맞는 성어",
     stem: "다음 상황에 어울리는 한자성어는?",
     passage: "경쟁사의 실패 사례를 분석한 팀장은 \"남의 잘못도 우리에게는 좋은 공부가 된다\"며 같은 실수를 되풀이하지 않을 대책을 세우라고 지시했다.",
@@ -338,14 +336,14 @@ const BASE_Q = [
   { area: "한시", tag: "빈출 작품 · 이달 「佛日庵贈因雲釋」",
     stem: "다음 시의 분위기로 가장 적절한 것은?",
     passage: "寺在白雲中\n白雲僧不掃\n客來門始開\n萬壑松花老",
-    cap: "절이 흰 구름 속에 있으나 / 흰 구름을 스님은 쓸지 않네 / 손님이 와서야 비로소 문을 여니 / 온 골짜기에 송화가 다 피었네",
+    cap: "절이 흰 구름 속에 있으나 / 흰 구름을 스님은 쓸지 않네 / 손님이 와서야 비로소 문을 여니 / 온 골짜기에 송화가 시들었네",
     choices: ["떠들썩하고 활기찬 축제의 분위기", "전란으로 황폐해진 쓸쓸한 분위기", "속세를 벗어난 산사의 고요하고 한가로운 분위기", "임을 기다리는 애타는 분위기"],
     answer: 3,
     explain: "'白雲'의 반복과 손님이 와야 비로소 열리는 문, 저절로 피고 지는 송화가 세속과 단절된 산사의 탈속적 정취를 보여 줍니다." },
   { area: "한시", tag: "빈출 작품 · 이백 「山中問答」",
     stem: "밑줄 친 구절의 의미로 가장 적절한 것은?",
     passage: "問余何事棲碧山\n笑而不答心自閑\n桃花流水杳然去\n<u>別有天地非人間</u>",
-    cap: "묻노니 그대는 왜 푸른 산에 사는가 / 웃을 뿐 답하지 않으니 마음 절로 한가롭네 / 복사꽃 띄운 물 아득히 흘러가니 / ( 밑줄 친 구절 )",
+    cap: "나에게 왜 푸른 산에 사느냐고 묻기에 / 웃을 뿐 답하지 않으니 마음 절로 한가롭네 / 복사꽃 띄운 물 아득히 흘러가니 / ( 밑줄 친 구절 )",
     choices: ["속세로 돌아가고 싶은 간절한 마음", "자연 속에서 겪는 고난과 시련", "벼슬길에 나아가지 못한 데 대한 한탄", "화자가 사는 곳이 인간 세상과 다른 별천지라는 자부심"],
     answer: 4,
     explain: "'따로 천지가 있으니 인간 세상이 아니로다'라는 뜻으로, 무릉도원 같은 자연 속 삶에 대한 만족과 탈속의 경지를 드러냅니다." },
@@ -379,7 +377,7 @@ const BASE_Q = [
     explain: "'일부러 흐르는 물로 하여금 산을 온통 둘러싸게 했다'는 뜻으로, 세속의 시비를 피해 은둔하려는 의지를 드러냅니다." }
 ];
 
-// 문제은행에서 의미가 확인된 항목을 조합해 추가 연습 문제를 구성합니다.
+// 창작 연습문제입니다. 실제 기출 원문이나 공식 정답표와 대조한 문제은행이 아닙니다.
 const VOCAB = [
  ["苦盡甘來", "고진감래", "고생 끝에 즐거움이 옴"],
  ["四面楚歌", "사면초가", "어디에서도 도움을 받기 어려운 처지"],
@@ -449,14 +447,14 @@ function createSet() {
 }
 let Q = Object.keys(AREA_COUNTS).flatMap(area => BASE_Q.filter(q=>q.area===area).slice(0,AREA_COUNTS[area]));
 try {
- const active = JSON.parse(localStorage.getItem("g7-active-set-v2") || "null");
+ const active = JSON.parse(localStorage.getItem("g7-active-set-v3") || "null");
  if (Array.isArray(active) && active.length === 20 && Object.entries(AREA_COUNTS).every(([area,count])=>active.filter(q=>q?.area===area).length===count) && active.every(q=>q && ["문법","한문","한시"].includes(q.area) && Array.isArray(q.choices) && q.choices.length===4 && Number.isInteger(q.answer) && q.answer>=1 && q.answer<=4)) Q=active;
 } catch(e) {}
 
 const AREAS = ["문법", "한문", "한시"];
 const AREA_LABEL = { "문법": "국어 문법", "한문": "한문", "한시": "한시" };
 const MARK = ["①", "②", "③", "④"];
-const KEY = "g7-mock-v2";
+const KEY = "g7-mock-v3";
 const NOTE_KEY = "g7-notebook-v1";
 let notes = {};
 try {
@@ -464,6 +462,12 @@ try {
   if (saved && typeof saved === "object" && !Array.isArray(saved)) notes = saved;
 } catch (e) {}
 let noteStorageFailed = false;
+for (const [key,note] of Object.entries(notes)) {
+  if (note.q?.choices?.includes("漸進 – 徐行")) {
+    delete notes[key];
+    try { localStorage.setItem(NOTE_KEY, JSON.stringify(notes)); } catch(e) { noteStorageFailed = true; }
+  }
+}
 function saveNotes() {
   try { localStorage.setItem(NOTE_KEY, JSON.stringify(notes)); noteStorageFailed = false; }
   catch (e) { noteStorageFailed = true; }
@@ -621,7 +625,7 @@ $("newSet").addEventListener("click", () => {
  if (!state.graded && Object.values(state.picks).some(Boolean) && !confirm("현재 답안은 초기화됩니다. 새 문제 세트를 만들까요?")) return;
  const next = createSet();
  try {
-  localStorage.setItem("g7-active-set-v2", JSON.stringify(next));
+  localStorage.setItem("g7-active-set-v3", JSON.stringify(next));
  } catch(e) { alert("브라우저 저장 공간을 사용할 수 없어 새 세트를 저장하지 못했습니다."); return; }
  Q = next;
  state = {area:"all",picks:{},graded:false,onlyWrong:false};
