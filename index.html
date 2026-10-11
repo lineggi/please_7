@@ -136,19 +136,19 @@ footer a { color: inherit; }
     <div>
       <div class="eyebrow">지방직 7급 국어(한문 포함) 기출 유형</div>
       <h1>7급 국어 기출 모의고사</h1>
-      <div class="meta">국어 문법 · 한문 · 한시, 영역별 10문항씩 모두 30문항</div>
+      <div class="meta">국어 문법 10문항 · 한문 5문항 · 한시 5문항, 모두 20문항</div>
     </div>
   </header>
 
   <div class="tabs" role="group" aria-label="영역 선택">
-    <button class="tab" id="tab-all" data-area="all" aria-pressed="true">전체 30문항</button>
+    <button class="tab" id="tab-all" data-area="all" aria-pressed="true">전체 20문항</button>
     <button class="tab" id="tab-g" data-area="문법" aria-pressed="false">국어 문법</button>
     <button class="tab" id="tab-h" data-area="한문" aria-pressed="false">한문</button>
     <button class="tab" id="tab-s" data-area="한시" aria-pressed="false">한시</button>
     <button class="tab" id="tab-notebook" aria-controls="notebook" aria-expanded="false">오답노트</button>
   </div>
 
-  <p class="meta">새 세트는 문제은행에서 영역별 10문항을 조합합니다. 한시 10문항은 다시 출제되며, 다른 영역도 반복될 수 있습니다.</p>
+  <p class="meta">새 세트는 문제은행에서 문법 10문항, 한문·한시 각 5문항을 조합합니다. 일부 문제는 반복될 수 있습니다.</p>
   <details class="trend">
     <summary>최근 기출 출제 경향 (2020–2025 지방직 7급)</summary>
     <ul>
@@ -172,7 +172,7 @@ footer a { color: inherit; }
       <div class="actions">
         <button class="btn" id="submit">채점하기</button>
         <button class="btn ghost" id="reset">같은 문제 다시 풀기</button>
-        <button class="btn ghost" id="newSet">새 30문제 만들기</button>
+        <button class="btn ghost" id="newSet">새 20문제 만들기</button>
       </div>
       <div class="result" id="result" hidden>
         <div class="score" id="score"></div>
@@ -427,6 +427,7 @@ function shuffle(list) {
  }
  return result;
 }
+const AREA_COUNTS = {"문법":10,"한문":5,"한시":5};
 function createSet() {
  const grammar = SPELLING.map(([good,bad,explain],i) => ({
   area:"문법", tag:"추가 연습 · 맞춤법", stem:`${explain.split("입니다")[0].includes("희망") ? "희망의 뜻으로 쓸 때" : i === 6 ? "원하는 일이 이루어지기를 희망한다는 뜻으로 쓸 때" : i === 10 ? "병이 좋아진다는 뜻으로 쓸 때" : "표준어와 맞춤법에 맞게 쓸 때"}, 옳은 표기는? (${[good,bad].sort().join(" / ")} 구별)`,
@@ -440,22 +441,22 @@ function createSet() {
   ];
  });
  const pool = [...BASE_Q, ...grammar, ...hanja];
- return ["문법","한문","한시"].flatMap(area => shuffle(pool.filter(q=>q.area===area)).slice(0,10)).map(q=>{
+ return ["문법","한문","한시"].flatMap(area => shuffle(pool.filter(q=>q.area===area)).slice(0,AREA_COUNTS[area])).map(q=>{
   const choices=shuffle(q.choices.map((text,i)=>({text,correct:i+1===q.answer})));
   return {...q,choices:choices.map(c=>c.text),answer:choices.findIndex(c=>c.correct)+1,
    explain:q.explain.replace(/[①②③④]/g,m=>MARK[choices.findIndex(c=>c.text===q.choices[MARK.indexOf(m)])])};
  });
 }
-let Q = BASE_Q;
+let Q = Object.keys(AREA_COUNTS).flatMap(area => BASE_Q.filter(q=>q.area===area).slice(0,AREA_COUNTS[area]));
 try {
- const active = JSON.parse(localStorage.getItem("g7-active-set-v1") || "null");
- if (Array.isArray(active) && active.length === 30 && active.every(q=>q && ["문법","한문","한시"].includes(q.area) && Array.isArray(q.choices) && q.choices.length===4 && Number.isInteger(q.answer) && q.answer>=1 && q.answer<=4)) Q=active;
+ const active = JSON.parse(localStorage.getItem("g7-active-set-v2") || "null");
+ if (Array.isArray(active) && active.length === 20 && Object.entries(AREA_COUNTS).every(([area,count])=>active.filter(q=>q?.area===area).length===count) && active.every(q=>q && ["문법","한문","한시"].includes(q.area) && Array.isArray(q.choices) && q.choices.length===4 && Number.isInteger(q.answer) && q.answer>=1 && q.answer<=4)) Q=active;
 } catch(e) {}
 
 const AREAS = ["문법", "한문", "한시"];
 const AREA_LABEL = { "문법": "국어 문법", "한문": "한문", "한시": "한시" };
 const MARK = ["①", "②", "③", "④"];
-const KEY = "g7-mock-v1";
+const KEY = "g7-mock-v2";
 const NOTE_KEY = "g7-notebook-v1";
 let notes = {};
 try {
@@ -620,7 +621,7 @@ $("newSet").addEventListener("click", () => {
  if (!state.graded && Object.values(state.picks).some(Boolean) && !confirm("현재 답안은 초기화됩니다. 새 문제 세트를 만들까요?")) return;
  const next = createSet();
  try {
-  localStorage.setItem("g7-active-set-v1", JSON.stringify(next));
+  localStorage.setItem("g7-active-set-v2", JSON.stringify(next));
  } catch(e) { alert("브라우저 저장 공간을 사용할 수 없어 새 세트를 저장하지 못했습니다."); return; }
  Q = next;
  state = {area:"all",picks:{},graded:false,onlyWrong:false};
