@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>7급 국어 기출 모의고사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 시험지 한 장 — 왼쪽 문제지, 오른쪽(모바일은 하단 고정) OMR 답안지 */
+:root {
+  --paper: #fbfbf8;
+  --sheet: #ffffff;
+  --ink: #1d2230;
+  --muted: #5d6474;
+  --rule: #dcdfe5;
+  --omr: #d4466b;
+  --omr-soft: #fbe9ee;
+  --ok: #1f7a4d;
+  --ok-soft: #e4f3ea;
+  --bad: #b3261e;
+  --bad-soft: #fbe7e5;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-text: "Noto Serif KR", "Batang", "AppleMyungjo", serif;
+  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14161c; --sheet: #1b1e26; --ink: #e8e9ee; --muted: #9aa0ae; --rule: #2e323d;
+    --omr: #f07895; --omr-soft: #3a1f29; --ok: #6fd19c; --ok-soft: #173326; --bad: #ff8a80; --bad-soft: #3d1c1a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14161c; --sheet: #1b1e26; --ink: #e8e9ee; --muted: #9aa0ae; --rule: #2e323d;
+  --omr: #f07895; --omr-soft: #3a1f29; --ok: #6fd19c; --ok-soft: #173326; --bad: #ff8a80; --bad-soft: #3d1c1a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.65 var(--font-body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; color: var(--omr); font-weight: 600; }
+h1 { font-family: var(--font-text); font-size: clamp(24px, 4vw, 32px); margin: 2px 0 0; text-wrap: balance; letter-spacing: -.01em; }
+.meta { color: var(--muted); font-size: 13px; }
+.timer { font-family: var(--font-num); font-size: 20px; font-variant-numeric: tabular-nums; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 8px; }
+.tab { border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 7px 14px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; }
+.tab[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.tab:focus-visible, .bubble:focus-visible, .btn:focus-visible, .omr-row button:focus-visible { outline: 2px solid var(--omr); outline-offset: 2px; }
+details.trend { margin: 10px 0 20px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 16px; }
+details.trend summary { cursor: pointer; font-weight: 600; }
+details.trend ul { margin: 8px 0 4px; padding-left: 18px; }
+details.trend li { margin: 4px 0; }
+details.trend p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 28px; align-items: start; }
+.sheet { min-width: 0; }
+.section-head { display: flex; align-items: baseline; gap: 10px; margin: 26px 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.section-head h2 { font-family: var(--font-text); font-size: 19px; margin: 0; }
+.section-head span { color: var(--muted); font-size: 13px; }
+.q { padding: 18px 0 20px; border-bottom: 1px dashed var(--rule); scroll-margin-top: 16px; }
+.q-stem { display: flex; gap: 10px; font-weight: 500; }
+.q-no { font-family: var(--font-num); font-weight: 500; min-width: 1.6em; }
+.q-tag { display: inline-block; margin-left: 2.6em; margin-top: 4px; font-size: 11.5px; color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: 0 6px; }
+.passage { margin: 12px 0 4px 2.6em; padding: 12px 16px; border: 1px solid var(--rule); background: var(--sheet); font-family: var(--font-text); white-space: pre-line; overflow-x: auto; }
+.passage.poem { font-size: 17px; line-height: 2; letter-spacing: .04em; }
+.passage .cap { display: block; font-family: var(--font-body); font-size: 12.5px; color: var(--muted); letter-spacing: 0; margin-top: 6px; line-height: 1.5; }
+.choices { list-style: none; margin: 10px 0 0 2.6em; padding: 0; display: grid; gap: 4px; }
+.choice { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.choice:hover { background: var(--omr-soft); }
+.choice .txt { font-family: var(--font-text); min-width: 0; }
+.bubble { flex: none; width: 26px; height: 20px; border-radius: 50%; border: 1.5px solid var(--omr); color: var(--omr); font: 600 11px/17px var(--font-num); text-align: center; background: transparent; cursor: pointer; padding: 0; margin-top: 2px; }
+.choice.sel .bubble { background: var(--ink); border-color: var(--ink); color: transparent; }
+.graded .choice { cursor: default; }
+.graded .choice:hover { background: transparent; }
+.choice.correct { background: var(--ok-soft); }
+.choice.correct .bubble { border-color: var(--ok); color: var(--ok); }
+.choice.correct.sel .bubble { background: var(--ok); border-color: var(--ok); }
+.choice.wrong { background: var(--bad-soft); }
+.choice.wrong .bubble { background: var(--bad); border-color: var(--bad); }
+.explain { margin: 10px 0 0 2.6em; padding: 10px 14px; border-left: 3px solid var(--ok); background: var(--sheet); font-size: 14px; }
+.explain b { color: var(--ok); }
+.q.is-wrong .explain { border-left-color: var(--bad); }
+.q.is-wrong .explain b { color: var(--bad); }
+aside.omr { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--sheet); border: 1.5px solid var(--omr); border-radius: 6px; padding: 12px 12px 14px; }
+.omr h3 { margin: 0 0 2px; font-size: 13px; color: var(--omr); letter-spacing: .08em; }
+.omr .count { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.omr-list { max-height: 52vh; overflow-y: auto; border-top: 1px solid var(--omr-soft); }
+.omr-row { display: grid; grid-template-columns: 2.4em repeat(4, 1fr); align-items: center; gap: 4px; padding: 3px 0; border-bottom: 1px solid var(--omr-soft); }
+.omr-row .n { font-family: var(--font-num); font-size: 12px; color: var(--omr); text-align: right; padding-right: 6px; cursor: pointer; background: none; border: 0; }
+.omr-row i { justify-self: center; width: 18px; height: 14px; border-radius: 50%; border: 1.2px solid var(--omr); font: 500 9px/12px var(--font-num); color: var(--omr); text-align: center; font-style: normal; }
+.omr-row i.on { background: var(--ink); border-color: var(--ink); color: transparent; }
+.omr-row.ok .n { color: var(--ok); }
+.omr-row.no .n { color: var(--bad); font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.btn { flex: 1 1 auto; border: 1px solid var(--ink); background: var(--ink); color: var(--sheet); padding: 9px 12px; border-radius: 6px; font: 600 14px var(--font-body); cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); }
+.result { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.score { font-family: var(--font-num); font-size: 30px; font-variant-numeric: tabular-nums; }
+.score small { font-size: 14px; color: var(--muted); }
+.by-area { list-style: none; padding: 0; margin: 6px 0 0; font-size: 13px; display: grid; gap: 2px; }
+.by-area li { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.filter { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-top: 8px; }
+footer { margin-top: 32px; color: var(--muted); font-size: 12.5px; }
+footer a { color: inherit; }
+@media (max-width: 860px) {
+  .wrap { padding-block: 20px 170px; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  aside.omr { position: fixed; left: 0; right: 0; bottom: 0; top: auto; border-radius: 12px 12px 0 0; border-width: 1.5px 0 0; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5; box-shadow: 0 -6px 20px rgba(0,0,0,.08); }
+  .omr-list { display: none; }
+  .omr .count { margin-bottom: 0; }
+  .actions { margin-top: 8px; }
+  .passage, .choices, .explain { margin-left: 0; }
+  .q-tag { margin-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">지방직 7급 국어(한문 포함) 기출 유형</div>
+      <h1>7급 국어 기출 모의고사</h1>
+      <div class="meta">국어 문법 · 한문 · 한시, 영역별 10문항씩 모두 30문항</div>
+    </div>
+    <div class="timer" id="timer" aria-live="off" title="경과 시간">00:00</div>
+  </header>
+
+  <div class="tabs" role="group" aria-label="영역 선택">
+    <button class="tab" id="tab-all" data-area="all" aria-pressed="true">전체 30문항</button>
+    <button class="tab" id="tab-g" data-area="문법" aria-pressed="false">국어 문법</button>
+    <button class="tab" id="tab-h" data-area="한문" aria-pressed="false">한문</button>
+    <button class="tab" id="tab-s" data-area="한시" aria-pressed="false">한시</button>
+  </div>
+
+  <details class="trend">
+    <summary>최근 기출 출제 경향 (2020–2025 지방직 7급)</summary>
+    <ul>
+      <li><b>2025</b> 9급과 달리 기존 출제 기조를 유지했습니다. 암기형 문법 규정, 한자어·성어 표기, 작품 해석 문항이 9문항 나왔습니다.</li>
+      <li><b>2024</b> 논리추론, 지문형 문법 같은 새 유형이 늘었고, 고전산문 「토끼전」이 출제됐습니다.</li>
+      <li><b>2023</b> 명사화 접사와 명사형 어미 구별, 용언 맞춤법, 한자어를 고유어로 바꿔 쓰기 문항이 나왔습니다. 「황조가」와 「추야우중」은 선지를 한자 표현으로 판단하게 했습니다.</li>
+      <li><b>2022</b> 문법 규정 3문항, 한자성어 2문항이었습니다. 성어 빈칸 선지는 髀肉之歎·聲東擊西·苦盡甘來·天衣無縫이었습니다.</li>
+      <li><b>2021</b> 실용 국어 수준의 문법 규정과 함께 고전 문법 문항이 나왔고, 한자어 표기와 성어는 기본서 수준이었습니다.</li>
+      <li><b>2020</b> 한자 비중이 컸습니다. 한자어 고쳐 쓰기, 한자 표기, 한자성어 문항이 나왔습니다.</li>
+    </ul>
+    <p>국가직 7급은 2021년부터 국어 대신 PSAT를 봅니다. 아래 문항은 위 경향을 반영해 새로 만든 연습 문제이며 시험지 원문이 아닙니다. 각 문항의 꼬리표는 참고한 기출 유형입니다.</p>
+  </details>
+
+  <div class="grid">
+    <main class="sheet" id="sheet"></main>
+    <aside class="omr" aria-label="답안지">
+      <h3>OMR 답안지</h3>
+      <div class="count" id="count"></div>
+      <div class="omr-list" id="omr"></div>
+      <div class="actions">
+        <button class="btn" id="submit">채점하기</button>
+        <button class="btn ghost" id="reset">다시 풀기</button>
+      </div>
+      <div class="result" id="result" hidden>
+        <div class="score" id="score"></div>
+        <ul class="by-area" id="byArea"></ul>
+        <label class="filter"><input type="checkbox" id="onlyWrong"> 틀린 문제만 보기</label>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    출제 경향 출처: 법률저널 이유진 강사 지방직 7급 국어 총평(<a href="https://www.lec.co.kr/news/articleView.html?idxno=750988" target="_blank" rel="noopener">2025</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=748585" target="_blank" rel="noopener">2024</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=744576" target="_blank" rel="noopener">2023</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=740685" target="_blank" rel="noopener">2022</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=731047" target="_blank" rel="noopener">2021</a>), <a href="https://m.cafe.daum.net/naraeyoujin/XNZw/37" target="_blank" rel="noopener">2020 총평</a>.
+  </footer>
+</div>
+
+<script>
+const Q = [
+  // ───── 국어 문법 ─────
+  { area: "문법", tag: "2023 기출 유형 · 명사화 접사와 명사형 어미",
+    stem: "밑줄 친 부분이 명사형 어미로 쓰인 것은?",
+    choices: ["그는 깊은 <u>잠</u>에 빠졌다.", "그녀는 환한 <u>웃음</u>을 지었다.", "그가 크게 <u>웃음</u>으로써 분위기가 풀렸다.", "아이는 <u>달리기</u> 대회에 나갔다."],
+    answer: 3,
+    explain: "③의 '웃음'은 부사 '크게'의 꾸밈을 받고 주어 '그가'에 대한 서술성을 가지므로 '-음'이 명사형 어미입니다. ①②④의 '잠', '웃음', '달리기'는 관형어의 꾸밈을 받거나 하나의 명사로 굳어진 파생 명사입니다." },
+  { area: "문법", tag: "2023 기출 유형 · 용언 맞춤법",
+    stem: "밑줄 친 말의 표기가 옳은 것은?",
+    choices: ["비가 그치고 활짝 <u>개인</u> 하늘을 보았다.", "나가기 전에 문을 꼭 <u>잠궜다</u>.", "<u>설레는</u> 마음으로 합격자 발표를 기다렸다.", "목이 <u>메여</u> 말을 잇지 못했다."],
+    answer: 3,
+    explain: "기본형이 '설레다'이므로 '설레는'이 맞습니다. ① '개다' → 갠, ② '잠그다' → 잠갔다, ④ '메다' → 메어(메)로 써야 합니다." },
+  { area: "문법", tag: "빈출 유형 · 표준 발음",
+    stem: "표준 발음으로 옳은 것은?",
+    choices: ["밟다[밥ː따]", "넓죽하다[널쭈카다]", "맑고[막꼬]", "늙지[늘찌]"],
+    answer: 1,
+    explain: "'밟-'은 자음 앞에서 [밥]으로 발음합니다(표준 발음법 제10항 다만). '넓죽하다'는 [넙쭈카다], '맑고'는 용언 어간 끝 ㄺ이 ㄱ 앞에 오므로 [말꼬], '늙지'는 [늑찌]입니다." },
+  { area: "문법", tag: "빈출 유형 · 로마자 표기",
+    stem: "국어의 로마자 표기가 옳은 것은?",
+    choices: ["종로 Jongro", "신라 Sinra", "독립문 Dokripmun", "왕십리 Wangsimni"],
+    answer: 4,
+    explain: "로마자 표기는 소리 나는 대로 적습니다. 왕십리[왕심니] → Wangsimni. 종로[종노] Jongno, 신라[실라] Silla, 독립문[동님문] Dongnimmun이 맞습니다." },
+  { area: "문법", tag: "빈출 유형 · 외래어 표기",
+    stem: "외래어 표기가 옳은 것은?",
+    choices: ["리더십", "쥬스", "컨셉", "메세지"],
+    answer: 1,
+    explain: "leadership은 '리더십'으로 적습니다. juice는 '주스'(ㅈ 뒤 이중모음 쓰지 않음), concept는 '콘셉트', message는 '메시지'입니다." },
+  { area: "문법", tag: "빈출 유형 · 사이시옷",
+    stem: "사이시옷 표기가 옳은 것은?",
+    choices: ["갯수", "촛점", "햇님", "등굣길"],
+    answer: 4,
+    explain: "'등교(登校)+길'은 한자어와 고유어가 결합하고 뒷말이 된소리로 나므로 '등굣길'로 씁니다. 한자어끼리 결합한 '개수', '초점'에는 사이시옷을 쓰지 않습니다(예외 6개: 곳간, 셋방, 숫자, 찻간, 툇간, 횟수). '해님'은 접미사 '-님'이 붙은 파생어라 사이시옷이 없습니다." },
+  { area: "문법", tag: "빈출 유형 · 띄어쓰기",
+    stem: "띄어쓰기가 옳은 것은?",
+    choices: ["그가 고향을 떠난지 3년이 지났다.", "이제는 이곳을 떠날 수밖에 없다.", "먹을만큼만 덜어 가세요.", "그 일을 한 지 십여년이 되었다."],
+    answer: 2,
+    explain: "'수'는 의존 명사라 띄우고 '밖에'는 조사라 붙입니다. ① 시간 경과의 '지'는 의존 명사라 '떠난 지', ③ '먹을 만큼', ④ '십여 년'으로 띄어 씁니다." },
+  { area: "문법", tag: "2021 기출 유형 · 고전 문법",
+    stem: "중세 국어에 대한 설명으로 옳지 않은 것은?",
+    choices: ["음절의 높낮이인 성조가 있어 글자 왼쪽에 방점을 찍어 표시하였다.", "앞 음절의 받침을 뒤 음절 첫소리로 옮겨 적는 이어적기가 일반적이었다.", "'ㆍ(아래아)'는 독자적인 음가를 가진 모음이었다.", "주격 조사 '가'가 널리 쓰여 '이'를 대신하였다."],
+    answer: 4,
+    explain: "주격 조사 '가'는 16세기 말 이후 문헌에 나타나 근대 국어 시기에 자리 잡았습니다. 중세 국어의 주격 조사는 '이, ㅣ, ∅'였습니다." },
+  { area: "문법", tag: "빈출 유형 · 서술어의 자릿수",
+    stem: "서술어가 요구하는 문장 성분의 개수가 세 개인 것은?",
+    choices: ["꽃이 피었다.", "그는 학생이 되었다.", "철수가 영희에게 꽃을 주었다.", "그는 의사가 아니다."],
+    answer: 3,
+    explain: "'주다'는 주어, 부사어(영희에게), 목적어를 요구하는 세 자리 서술어입니다. ①은 한 자리, ②④는 주어와 보어를 요구하는 두 자리 서술어입니다." },
+  { area: "문법", tag: "빈출 유형 · 표준어",
+    stem: "모두 표준어로만 묶인 것은?",
+    choices: ["윗어른, 설거지, 남사스럽다", "짜장면, 맨날, 먹거리", "설겆이, 메밀, 괴발개발", "삭월세, 끄나풀, 아지랑이"],
+    answer: 2,
+    explain: "'짜장면, 맨날, 먹거리'는 2011년 표준어로 추가되었습니다. '윗어른'은 '웃어른', '설겆이'는 '설거지', '삭월세'는 '사글세'가 표준어입니다." },
+
+  // ───── 한문 ─────
+  { area: "한문", tag: "2022 기출 유형 · 한자성어 빈칸",
+    stem: "(가)에 들어갈 한자성어로 가장 적절한 것은?",
+    passage: "뛰어난 재주를 지니고도 오랫동안 쓰일 기회를 얻지 못한 그는, 말을 타고 전장을 누빌 일 없이 넓적다리에 살만 오르는 처지를 두고 (가)을/를 금치 못하였다.",
+    choices: ["聲東擊西", "苦盡甘來", "髀肉之歎", "天衣無縫"],
+    answer: 3,
+    explain: "髀肉之歎(비육지탄)은 유비가 오랫동안 말을 타지 않아 넓적다리에 살이 찐 것을 한탄한 데서 나온 말로, 할 일 없이 세월만 보냄을 탄식한다는 뜻입니다. 聲東擊西는 동쪽에서 소리 내고 서쪽을 침, 苦盡甘來는 고생 끝에 낙이 옴, 天衣無縫은 꾸민 흔적 없이 완전함입니다." },
+  { area: "한문", tag: "2020 기출 유형 · 한자 표기",
+    stem: "밑줄 친 단어의 한자 표기가 옳지 않은 것은?",
+    choices: ["사장님의 <u>결재(決裁)</u>를 받았다.", "정부는 경기 <u>부양(扶養)</u> 대책을 발표했다.", "신약 <u>개발(開發)</u>에 성공했다.", "안전사고 <u>방지(防止)</u>에 힘썼다."],
+    answer: 2,
+    explain: "가라앉은 경기를 끌어올린다는 뜻의 '부양'은 浮揚(뜰 부, 날릴 양)입니다. 扶養은 생활 능력이 없는 사람을 돌본다는 뜻입니다." },
+  { area: "한문", tag: "2023 기출 유형 · 고유어로 바꿔 쓰기",
+    stem: "밑줄 친 한자어를 고유어로 바꿔 쓴 것으로 적절하지 않은 것은?",
+    choices: ["사태를 <u>수습(收拾)하였다</u> → 거두어 바로잡았다", "자료를 <u>수집(蒐集)하였다</u> → 모았다", "결정을 <u>유보(留保)하였다</u> → 미루었다", "기존 정책을 <u>견지(堅持)하였다</u> → 바꾸었다"],
+    answer: 4,
+    explain: "堅持(굳을 견, 가질 지)는 주장이나 태도를 굳게 지킨다는 뜻이므로 '지켰다', '굳게 지녔다'로 바꿔야 합니다." },
+  { area: "한문", tag: "빈출 유형 · 한자성어 의미",
+    stem: "한자성어의 뜻풀이로 옳지 않은 것은?",
+    choices: ["脣亡齒寒: 서로 다투다가 둘 다 손해를 봄", "刻舟求劍: 융통성 없이 어리석게 고집함", "結草報恩: 죽어서도 잊지 않고 은혜를 갚음", "塞翁之馬: 인생의 길흉화복은 예측하기 어려움"],
+    answer: 1,
+    explain: "脣亡齒寒(순망치한)은 입술이 없으면 이가 시리다는 뜻으로, 서로 밀접하게 의지하는 관계를 이릅니다. 둘이 다투다 제삼자가 이득을 보는 것은 漁父之利입니다." },
+  { area: "한문", tag: "빈출 유형 · 한자어 독음",
+    stem: "한자어의 독음이 옳은 것은?",
+    choices: ["洞察(동찰)", "齟齬(저어)", "遊說(유설)", "惹起(약기)"],
+    answer: 2,
+    explain: "齟齬(저어)는 뜻이 맞지 않아 어긋남을 뜻합니다. 洞察은 '통찰'(洞: 꿰뚫을 통), 遊說는 '유세'(說: 달랠 세), 惹起는 '야기'로 읽습니다." },
+  { area: "한문", tag: "빈출 유형 · 한문 독해",
+    stem: "다음 문장에서 밑줄 친 글자의 음과 뜻으로 옳은 것은?",
+    passage: "學而時習之, 不亦<u>說</u>乎.  —『論語』",
+    choices: ["설 – 말씀", "세 – 달래다", "탈 – 벗다", "열 – 기쁘다"],
+    answer: 4,
+    explain: "'배우고 때때로 익히면 또한 기쁘지 아니한가'라는 뜻으로, 여기서 說은 悅과 같이 '기쁘다(열)'로 읽습니다." },
+  { area: "한문", tag: "빈출 유형 · 한문 해석",
+    stem: "다음 문장의 해석으로 가장 적절한 것은?",
+    passage: "知之爲知之, 不知爲不知, 是知也.  —『論語』",
+    choices: ["아는 것을 안다고 하고 모르는 것을 모른다고 하는 것, 이것이 아는 것이다.", "아는 것은 모르는 것에서 비롯되니, 모르는 것을 알아야 한다.", "남이 나를 알아주지 않아도 성내지 않으면 군자이다.", "배우기만 하고 생각하지 않으면 얻는 것이 없다."],
+    answer: 1,
+    explain: "爲는 '~라고 하다', 是는 '이것'입니다. 공자가 제자 자로(子路)에게 앎의 태도를 일러 준 구절입니다." },
+  { area: "한문", tag: "빈출 유형 · 한자어 관계",
+    stem: "두 한자어의 의미 관계가 나머지와 다른 것은?",
+    choices: ["需要 – 供給", "樂觀 – 悲觀", "漸進 – 徐行", "抽象 – 具體"],
+    answer: 3,
+    explain: "漸進(점진)과 徐行(서행)은 모두 천천히 나아간다는 뜻으로 유의 관계입니다. 나머지는 반의 관계이며 漸進의 반의어는 急進입니다." },
+  { area: "한문", tag: "빈출 유형 · 상황에 맞는 성어",
+    stem: "다음 상황에 어울리는 한자성어는?",
+    passage: "경쟁사의 실패 사례를 분석한 팀장은 \"남의 잘못도 우리에게는 좋은 공부가 된다\"며 같은 실수를 되풀이하지 않을 대책을 세우라고 지시했다.",
+    choices: ["我田引水", "他山之石", "牽強附會", "左顧右眄"],
+    answer: 2,
+    explain: "他山之石(타산지석)은 다른 산의 거친 돌도 자기 옥을 가는 데 쓸 수 있다는 뜻으로, 남의 하찮은 언행도 자기 수양에 도움이 됨을 이릅니다. 我田引水는 자기에게 유리하게만 함, 牽強附會는 억지로 끌어다 맞춤, 左顧右眄은 이리저리 살피며 망설임입니다." },
+  { area: "한문", tag: "빈출 유형 · 동음이의 한자어",
+    stem: "밑줄 친 '사기'의 한자 표기로 옳은 것은?",
+    passage: "첫 승리를 거둔 병사들의 <u>사기</u>가 하늘을 찔렀다.",
+    choices: ["詐欺", "史記", "沙器", "士氣"],
+    answer: 4,
+    explain: "의욕이나 자신감으로 가득한 기세는 士氣(선비 사, 기운 기)입니다. 詐欺는 남을 속임, 史記는 역사 기록, 沙器는 사기그릇입니다." },
+
+  // ───── 한시 ─────
+  { area: "한시", tag: "빈출 작품 · 정지상 「送人」",
+    stem: "다음 시에 대한 설명으로 적절하지 않은 것은?",
+    passage: "雨歇長堤草色多\n送君南浦動悲歌\n大同江水何時盡\n別淚年年添綠波",
+    cap: "비 갠 긴 둑에 풀빛 짙은데 / 남포에서 임 보내며 슬픈 노래 부르네 / 대동강 물은 언제 마르려나 / 이별의 눈물 해마다 푸른 물결에 더하니",
+    choices: ["칠언절구의 형식이다.", "임과 다시 만난 기쁨을 노래하고 있다.", "비 갠 뒤 짙어진 풀빛이 화자의 슬픔과 대비된다.", "대동강 물이 마르지 않는 까닭을 이별의 눈물로 과장하여 표현했다."],
+    answer: 2,
+    explain: "고려 정지상의 「送人(송인)」은 남포에서 임을 떠나보내는 이별의 슬픔을 노래한 작품입니다. 재회의 기쁨은 드러나지 않습니다." },
+  { area: "한시", tag: "2023 기출 작품 · 최치원 「秋夜雨中」",
+    stem: "다음 시에 대한 설명으로 적절하지 않은 것은?",
+    passage: "秋風惟苦吟\n世路少知音\n窓外三更雨\n燈前萬里心",
+    cap: "가을바람에 괴로이 읊조리나 / 세상에 나를 알아주는 이 적구나 / 창밖에는 삼경의 비 내리고 / 등불 앞 마음은 만 리 밖을 향하네",
+    choices: ["오언절구의 형식이다.", "'知音'은 자신을 알아주는 벗을 뜻한다.", "'三更雨'는 깊은 밤 화자의 쓸쓸함을 심화한다.", "'萬里心'은 현실에 만족하는 화자의 여유를 드러낸다."],
+    answer: 4,
+    explain: "'萬里心'은 만 리 밖 고향(또는 이상)을 향한 그리움입니다. 이 시는 세상과 맞지 않는 지식인의 고독과 향수를 노래합니다. '知音'은 거문고 소리를 알아준 종자기(鍾子期) 고사에서 온 말입니다." },
+  { area: "한시", tag: "2023 기출 작품 · 유리왕 「黃鳥歌」",
+    stem: "다음 시에서 '黃鳥'의 기능으로 가장 적절한 것은?",
+    passage: "翩翩黃鳥\n雌雄相依\n念我之獨\n誰其與歸",
+    cap: "펄펄 나는 꾀꼬리는 / 암수 서로 정답구나 / 외로운 이 내 몸은 / 누구와 함께 돌아갈까",
+    choices: ["화자와 처지가 같아 동질감을 느끼게 하는 대상이다.", "짝을 이룬 모습으로 화자의 외로움을 부각하는 대상이다.", "화자를 떠난 임을 직접 상징하는 대상이다.", "계절의 변화를 알려 시간의 흐름을 드러내는 대상이다."],
+    answer: 2,
+    explain: "'雌雄相依(암수가 서로 의지함)'하는 꾀꼬리는 '我之獨(나의 외로움)'과 대비되는 객관적 상관물입니다." },
+  { area: "한시", tag: "빈출 작품 · 을지문덕 「與隋將于仲文詩」",
+    stem: "다음 시의 표현상 특징으로 가장 적절한 것은?",
+    passage: "神策究天文\n妙算窮地理\n戰勝功旣高\n知足願云止",
+    cap: "신묘한 계책은 하늘의 이치를 다했고 / 기묘한 헤아림은 땅의 이치를 꿰뚫었네 / 싸움에 이겨 공이 이미 높으니 / 만족함을 알고 그만두기를 바라노라",
+    choices: ["적장을 칭찬하는 듯하지만 실제로는 조롱하는 반어적 표현이다.", "자연물에 감정을 이입하여 화자의 슬픔을 드러낸다.", "계절의 순환을 통해 인생의 무상함을 노래한다.", "임금에 대한 변함없는 충성을 직설적으로 다짐한다."],
+    answer: 1,
+    explain: "살수대첩 직전 수나라 장수 우중문에게 보낸 시로, 계책을 추켜세우는 척하며 물러가라고 조롱하는 반어(역설적 칭찬)가 핵심입니다." },
+  { area: "한시", tag: "빈출 작품 · 이달 「佛日庵贈因雲釋」",
+    stem: "다음 시의 분위기로 가장 적절한 것은?",
+    passage: "寺在白雲中\n白雲僧不掃\n客來門始開\n萬壑松花老",
+    cap: "절이 흰 구름 속에 있으나 / 흰 구름을 스님은 쓸지 않네 / 손님이 와서야 비로소 문을 여니 / 온 골짜기에 송화가 다 피었네",
+    choices: ["떠들썩하고 활기찬 축제의 분위기", "전란으로 황폐해진 쓸쓸한 분위기", "속세를 벗어난 산사의 고요하고 한가로운 분위기", "임을 기다리는 애타는 분위기"],
+    answer: 3,
+    explain: "'白雲'의 반복과 손님이 와야 비로소 열리는 문, 저절로 피고 지는 송화가 세속과 단절된 산사의 탈속적 정취를 보여 줍니다." },
+  { area: "한시", tag: "빈출 작품 · 이백 「山中問答」",
+    stem: "밑줄 친 구절의 의미로 가장 적절한 것은?",
+    passage: "問余何事棲碧山\n笑而不答心自閑\n桃花流水杳然去\n<u>別有天地非人間</u>",
+    cap: "묻노니 그대는 왜 푸른 산에 사는가 / 웃을 뿐 답하지 않으니 마음 절로 한가롭네 / 복사꽃 띄운 물 아득히 흘러가니 / ( 밑줄 친 구절 )",
+    choices: ["속세로 돌아가고 싶은 간절한 마음", "자연 속에서 겪는 고난과 시련", "벼슬길에 나아가지 못한 데 대한 한탄", "화자가 사는 곳이 인간 세상과 다른 별천지라는 자부심"],
+    answer: 4,
+    explain: "'따로 천지가 있으니 인간 세상이 아니로다'라는 뜻으로, 무릉도원 같은 자연 속 삶에 대한 만족과 탈속의 경지를 드러냅니다." },
+  { area: "한시", tag: "빈출 작품 · 두보 「絶句」",
+    stem: "다음 시의 구성 방식으로 가장 적절한 것은?",
+    passage: "江碧鳥逾白\n山靑花欲然\n今春看又過\n何日是歸年",
+    cap: "강이 푸르니 새 더욱 희고 / 산이 푸르니 꽃은 불타는 듯하네 / 올봄도 보는 사이 또 지나가니 / 어느 날이 돌아갈 해인가",
+    choices: ["시간의 역순으로 사건을 배열하였다.", "앞에서 경치를 묘사하고 뒤에서 정서를 드러내는 선경후정의 구성이다.", "문답 형식으로 화자의 깨달음을 전한다.", "각 구마다 다른 화자가 등장한다."],
+    answer: 2,
+    explain: "1·2구는 선명한 색채 대비(碧–白, 靑–然)로 봄 경치를 그리고, 3·4구는 고향에 돌아가지 못하는 안타까움을 드러냅니다. 한시의 대표적 구성인 선경후정(先景後情)입니다." },
+  { area: "한시", tag: "빈출 작품 · 정몽주 「春興」",
+    stem: "다음 시에 대한 설명으로 적절하지 않은 것은?",
+    passage: "春雨細不滴\n夜中微有聲\n雪盡南溪漲\n草芽多少生",
+    cap: "봄비 가늘어 방울지지 않더니 / 밤중에 작은 소리 들리네 / 눈 녹아 남쪽 시내 불어나니 / 풀싹이 얼마나 돋았을까",
+    choices: ["1구에서 봄비가 방울지지 않을 만큼 가늘다고 하였다.", "2구에서 청각을 통해 봄비가 내리고 있음을 알아차린다.", "4구에서 풀싹이 시들어 가는 모습으로 쓸쓸함을 드러낸다.", "3구에서 눈이 녹아 시냇물이 불어난 모습을 그렸다."],
+    answer: 3,
+    explain: "4구 '草芽多少生'은 풀싹이 얼마나 돋아났을지 상상하는 것으로, 봄을 맞는 생동감과 기대를 드러냅니다." },
+  { area: "한시", tag: "빈출 작품 · 허난설헌 「采蓮曲」",
+    stem: "다음 시에 대한 설명으로 적절하지 않은 것은?",
+    passage: "秋淨長湖碧玉流\n荷花深處係蘭舟\n逢郎隔水投蓮子\n遙被人知半日羞",
+    cap: "가을날 맑은 호수 옥처럼 흐르는데 / 연꽃 깊은 곳에 목란배를 매어 두었네 / 물 건너 임을 만나 연밥을 던지고는 / 멀리서 남이 보았을까 반나절 부끄러웠네",
+    choices: ["화자는 물 건너편의 임에게 연밥을 던진다.", "'蓮子'는 '憐子(그대를 사랑함)'와 음이 같아 사랑의 뜻을 담는다.", "마지막 구에서 화자의 수줍은 마음이 드러난다.", "임과 이별한 슬픔을 체념적으로 노래한다."],
+    answer: 4,
+    explain: "이 시는 이별이 아니라 젊은 여인의 풋풋한 사랑과 수줍음을 그린 작품입니다." },
+  { area: "한시", tag: "빈출 작품 · 최치원 「題伽倻山讀書堂」",
+    stem: "밑줄 친 구절에 담긴 화자의 의도로 가장 적절한 것은?",
+    passage: "狂奔疊石吼重巒\n人語難分咫尺間\n常恐是非聲到耳\n<u>故敎流水盡籠山</u>",
+    cap: "첩첩 바위 사이 미친 듯 달려 겹겹 봉우리 울리니 / 지척에서 하는 말도 알아듣기 어렵네 / 늘 시비하는 소리 귀에 들릴까 두려워 / ( 밑줄 친 구절 )",
+    choices: ["세상의 시비 소리를 듣지 않으려고 물소리로 산을 감싸게 했다.", "산속 생활이 외로워 사람들을 불러 모으려 했다.", "물소리를 통해 임금의 부름을 기다렸다.", "흐르는 물처럼 세월이 빠름을 한탄했다."],
+    answer: 1,
+    explain: "'일부러 흐르는 물로 하여금 산을 온통 둘러싸게 했다'는 뜻으로, 세속의 시비를 피해 은둔하려는 의지를 드러냅니다." }
+];
+
+const AREAS = ["문법", "한문", "한시"];
+const AREA_LABEL = { "문법": "국어 문법", "한문": "한문", "한시": "한시" };
+const MARK = ["①", "②", "③", "④"];
+const KEY = "g7-mock-v1";
+
+let state = { area: "all", picks: {}, graded: false, onlyWrong: false, started: Date.now(), stoppedAt: null };
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (saved && typeof saved === "object") state = Object.assign(state, saved);
+} catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+const $ = (id) => document.getElementById(id);
+const visible = () => Q.map((q, i) => ({ q, i })).filter(({ q }) => state.area === "all" || q.area === state.area);
+
+function render() {
+  const items = visible();
+  const sheet = $("sheet");
+  sheet.className = "sheet" + (state.graded ? " graded" : "");
+  let html = "", lastArea = null, n = 0;
+  for (const { q, i } of items) {
+    n++;
+    const pick = state.picks[i];
+    const wrong = state.graded && pick !== q.answer;
+    if (state.graded && state.onlyWrong && !wrong) continue;
+    if (q.area !== lastArea) {
+      lastArea = q.area;
+      html += `<div class="section-head"><h2>${AREA_LABEL[q.area]}</h2><span>${Q.filter(x => x.area === q.area).length}문항</span></div>`;
+    }
+    html += `<article class="q${wrong ? " is-wrong" : ""}" id="q${i}">
+      <div class="q-stem"><span class="q-no">${n}.</span><span>${q.stem}</span></div>
+      <span class="q-tag">${q.tag}</span>
+      ${q.passage ? `<div class="passage${q.area === "한시" ? " poem" : ""}">${q.passage}${q.cap ? `<span class="cap">${q.cap}</span>` : ""}</div>` : ""}
+      <ul class="choices">${q.choices.map((c, k) => {
+        const no = k + 1;
+        let cls = "choice";
+        if (pick === no) cls += " sel";
+        if (state.graded && no === q.answer) cls += " correct";
+        if (state.graded && pick === no && no !== q.answer) cls += " wrong";
+        return `<li class="${cls}" data-q="${i}" data-c="${no}"><button class="bubble" aria-label="${n}번 ${no}번 선택" aria-pressed="${pick === no}" ${state.graded ? "disabled" : ""}>${no}</button><span class="txt">${c}</span></li>`;
+      }).join("")}</ul>
+      ${state.graded ? `<div class="explain"><b>정답 ${MARK[q.answer - 1]}${pick ? (wrong ? ` · 내 답 ${MARK[pick - 1]}` : " · 정답") : " · 미응답"}</b><br>${q.explain}</div>` : ""}
+    </article>`;
+  }
+  if (!html) html = `<p class="meta" style="padding:24px 0">이 영역은 모두 맞혔습니다.</p>`;
+  sheet.innerHTML = html;
+
+  $("omr").innerHTML = items.map(({ q, i }, idx) => {
+    const pick = state.picks[i];
+    const cls = state.graded ? (pick === q.answer ? " ok" : " no") : "";
+    return `<div class="omr-row${cls}"><button class="n" data-jump="${i}">${idx + 1}</button>${[1,2,3,4].map(c => `<i class="${pick === c ? "on" : ""}">${c}</i>`).join("")}</div>`;
+  }).join("");
+
+  const answered = items.filter(({ i }) => state.picks[i]).length;
+  $("count").textContent = `${AREA_LABEL[state.area] || "전체"} · ${answered} / ${items.length} 표기`;
+  $("submit").hidden = state.graded;
+
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-pressed", String(t.dataset.area === state.area)));
+
+  $("result").hidden = !state.graded;
+  if (state.graded) {
+    const correct = items.filter(({ q, i }) => state.picks[i] === q.answer).length;
+    const pts = Math.round(correct / items.length * 100);
+    $("score").innerHTML = `${pts}<small>점 · ${correct}/${items.length}</small>`;
+    const areas = state.area === "all" ? AREAS : [state.area];
+    $("byArea").innerHTML = areas.map(a => {
+      const list = items.filter(({ q }) => q.area === a);
+      const c = list.filter(({ q, i }) => state.picks[i] === q.answer).length;
+      return `<li><span>${AREA_LABEL[a]}</span><span>${c} / ${list.length}</span></li>`;
+    }).join("");
+    $("onlyWrong").checked = state.onlyWrong;
+  }
+}
+
+$("sheet").addEventListener("click", (e) => {
+  if (state.graded) return;
+  const li = e.target.closest(".choice");
+  if (!li) return;
+  const i = +li.dataset.q, c = +li.dataset.c;
+  state.picks[i] = state.picks[i] === c ? undefined : c;
+  save(); render();
+});
+$("omr").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-jump]");
+  if (b) { const el = $("q" + b.dataset.jump); if (el) el.scrollIntoView(); }
+});
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  state.area = t.dataset.area; state.graded = false; state.onlyWrong = false;
+  state.picks = {}; state.started = Date.now(); state.stoppedAt = null;
+  save(); render(); tick(); window.scrollTo(0, 0);
+}));
+$("submit").addEventListener("click", () => {
+  state.graded = true; state.stoppedAt = Date.now(); save(); render();
+});
+$("reset").addEventListener("click", () => {
+  state.picks = {}; state.graded = false; state.onlyWrong = false; state.started = Date.now(); state.stoppedAt = null;
+  save(); render(); tick(); window.scrollTo(0, 0);
+});
+$("onlyWrong").addEventListener("change", (e) => { state.onlyWrong = e.target.checked; save(); render(); });
+
+function tick() {
+  const ms = (state.stoppedAt || Date.now()) - state.started;
+  const s = Math.max(0, Math.floor(ms / 1000));
+  $("timer").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+setInterval(tick, 1000); tick();
+render();
+</script>
+</body>
+</html>
