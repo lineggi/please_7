@@ -102,6 +102,10 @@ aside.omr { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); b
 .by-area { list-style: none; padding: 0; margin: 6px 0 0; font-size: 13px; display: grid; gap: 2px; }
 .by-area li { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .filter { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-top: 8px; }
+.notebook { margin-top: 24px; border: 1px solid var(--rule); border-radius: 8px; padding: 16px; background: var(--sheet); }
+.notebook summary { cursor: pointer; font-weight: 600; }
+.notebook article { padding: 18px 0; border-bottom: 1px dashed var(--rule); }
+.notebook .btn { margin-top: 8px; }
 footer { margin-top: 32px; color: var(--muted); font-size: 12.5px; }
 footer a { color: inherit; }
 @media (max-width: 860px) {
@@ -135,6 +139,7 @@ footer a { color: inherit; }
     <button class="tab" id="tab-s" data-area="한시" aria-pressed="false">한시</button>
   </div>
 
+  <p class="meta">새 세트는 문제은행에서 영역별 10문항을 조합합니다. 한시 10문항은 다시 출제되며, 다른 영역도 반복될 수 있습니다.</p>
   <details class="trend">
     <summary>최근 기출 출제 경향 (2020–2025 지방직 7급)</summary>
     <ul>
@@ -153,10 +158,12 @@ footer a { color: inherit; }
     <aside class="omr" aria-label="답안지">
       <h3>OMR 답안지</h3>
       <div class="count" id="count"></div>
+      <div class="meta" id="progress" role="status"></div>
       <div class="omr-list" id="omr"></div>
       <div class="actions">
         <button class="btn" id="submit">채점하기</button>
-        <button class="btn ghost" id="reset">다시 풀기</button>
+        <button class="btn ghost" id="reset">같은 문제 다시 풀기</button>
+        <button class="btn ghost" id="newSet">새 30문제 만들기</button>
       </div>
       <div class="result" id="result" hidden>
         <div class="score" id="score"></div>
@@ -166,13 +173,19 @@ footer a { color: inherit; }
     </aside>
   </div>
 
+  <details class="notebook" id="notebook">
+    <summary id="notebookTitle">오답노트</summary>
+    <p class="meta" id="notebookStatus" role="status">채점하면 오답과 미응답이 자동 저장됩니다. 이 브라우저에 저장되며 다시 풀어도 남습니다.</p>
+    <div id="notebookItems"></div>
+  </details>
+
   <footer>
     출제 경향 출처: 법률저널 이유진 강사 지방직 7급 국어 총평(<a href="https://www.lec.co.kr/news/articleView.html?idxno=750988" target="_blank" rel="noopener">2025</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=748585" target="_blank" rel="noopener">2024</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=744576" target="_blank" rel="noopener">2023</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=740685" target="_blank" rel="noopener">2022</a>, <a href="https://www.lec.co.kr/news/articleView.html?idxno=731047" target="_blank" rel="noopener">2021</a>), <a href="https://m.cafe.daum.net/naraeyoujin/XNZw/37" target="_blank" rel="noopener">2020 총평</a>.
   </footer>
 </div>
 
 <script>
-const Q = [
+const BASE_Q = [
   // ───── 국어 문법 ─────
   { area: "문법", tag: "2023 기출 유형 · 명사화 접사와 명사형 어미",
     stem: "밑줄 친 부분이 명사형 어미로 쓰인 것은?",
@@ -355,10 +368,115 @@ const Q = [
     explain: "'일부러 흐르는 물로 하여금 산을 온통 둘러싸게 했다'는 뜻으로, 세속의 시비를 피해 은둔하려는 의지를 드러냅니다." }
 ];
 
+// 문제은행에서 의미가 확인된 항목을 조합해 추가 연습 문제를 구성합니다.
+const VOCAB = [
+ ["苦盡甘來", "고진감래", "고생 끝에 즐거움이 옴"],
+ ["四面楚歌", "사면초가", "어디에서도 도움을 받기 어려운 처지"],
+ ["一石二鳥", "일석이조", "한 가지 일로 두 가지 이익을 얻음"],
+ ["溫故知新", "온고지신", "옛것을 익혀 새로운 것을 앎"],
+ ["有備無患", "유비무환", "미리 준비하면 걱정할 일이 없음"],
+ ["大器晩成", "대기만성", "큰 인물이 되려면 오랜 시간이 걸림"],
+ ["自業自得", "자업자득", "자기가 한 일의 결과를 자기가 받음"],
+ ["以心傳心", "이심전심", "말 없이 마음으로 뜻이 통함"],
+ ["百聞不如一見", "백문불여일견", "여러 번 듣는 것보다 직접 한 번 보는 것이 나음"],
+ ["井底之蛙", "정저지와", "견문이 좁아 넓은 세상을 모르는 사람"],
+ ["朝三暮四", "조삼모사", "눈앞의 차이에만 매달려 결과가 같음을 모름"],
+ ["畫龍點睛", "화룡점정", "마지막 중요한 부분을 완성함"],
+ ["雪上加霜", "설상가상", "어려운 일에 또 어려운 일이 겹침"],
+ ["同床異夢", "동상이몽", "겉으로 함께하면서 속으로 다른 생각을 함"],
+ ["東問西答", "동문서답", "묻는 말과 관계없는 대답을 함"],
+ ["過猶不及", "과유불급", "지나친 것은 모자란 것과 같음"],
+ ["他山之石", "타산지석", "다른 사람의 잘못도 자신의 수양에 도움이 됨"],
+ ["刻骨難忘", "각골난망", "은혜를 깊이 새겨 잊지 못함"],
+ ["言行一致", "언행일치", "말과 행동이 일치함"],
+ ["前無後無", "전무후무", "이전에도 없었고 이후에도 없음"]
+];
+const SPELLING = [
+ ["되었다", "됬다", "'되어'를 줄이면 '돼'가 되므로 '됐다'도 옳지만 '됬다'는 틀립니다."],
+ ["며칠", "몇일", "날짜나 날의 수를 뜻하는 말은 '며칠'로 씁니다."],
+ ["금세", "금새", "'금시에'가 줄어든 말은 '금세'입니다."],
+ ["웬일", "왠일", "'어찌 된 일'을 뜻하는 말은 '웬일'입니다."],
+ ["어이없다", "어의없다", "뜻밖이어서 기가 막힌다는 뜻은 '어이없다'입니다."],
+ ["설레다", "설레이다", "표준어는 '설레다'입니다."],
+ ["바라다", "바래다", "원하는 일이 이루어지기를 희망한다는 뜻은 '바라다'입니다."],
+ ["잠갔다", "잠궜다", "'잠그다'는 어간의 'ㅡ'가 탈락해 '잠가', '잠갔다'로 활용합니다."],
+ ["담갔다", "담궜다", "'담그다'는 어간의 'ㅡ'가 탈락해 '담가', '담갔다'로 활용합니다."],
+ ["치렀다", "치뤘다", "'치르다'는 '치러', '치렀다'로 활용합니다."],
+ ["낫다", "낳다", "병이나 상처가 좋아진다는 뜻은 '낫다'입니다."],
+ ["오랜만", "오랫만", "'오래간만'의 준말은 '오랜만'입니다."],
+ ["어떡해", "어떻해", "'어떻게 해'를 줄여 쓴 말은 '어떡해'입니다."],
+ ["뵈어요", "봬어요", "'뵈어요'의 준말은 '봬요'입니다. '봬어요'는 틀립니다."],
+ ["돼요", "되요", "'되어요'를 줄이면 '돼요'가 됩니다."]
+];
+function shuffle(list) {
+ const result = [...list];
+ for (let i = result.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [result[i], result[j]] = [result[j], result[i]];
+ }
+ return result;
+}
+function createSet() {
+ const grammar = SPELLING.map(([good,bad,explain],i) => ({
+  area:"문법", tag:"추가 연습 · 맞춤법", stem:`${explain.split("입니다")[0].includes("희망") ? "희망의 뜻으로 쓸 때" : i === 6 ? "원하는 일이 이루어지기를 희망한다는 뜻으로 쓸 때" : i === 10 ? "병이 좋아진다는 뜻으로 쓸 때" : "표준어와 맞춤법에 맞게 쓸 때"}, 옳은 표기는? (${[good,bad].sort().join(" / ")} 구별)`,
+  choices:[good,bad,...shuffle(["됬다","몇일","왠일","어의없다","오랫만","어떻해","되요"].filter(x=>x!==bad)).slice(0,2)], answer:1, explain
+ }));
+ const hanja = VOCAB.flatMap(([word,reading,meaning],i) => {
+  const others = shuffle(VOCAB.filter((_,j)=>i!==j)).slice(0,3);
+  return [
+   {area:"한문",tag:"추가 연습 · 한자성어 뜻",stem:`'${word}(${reading})'의 뜻으로 가장 적절한 것은?`,choices:[meaning,...others.map(v=>v[2])],answer:1,explain:`${word}(${reading}): ${meaning}.`},
+   {area:"한문",tag:"추가 연습 · 한자성어 표기",stem:`'${meaning}'에 해당하는 한자성어는?`,choices:[word,...others.map(v=>v[0])],answer:1,explain:`${word}(${reading}): ${meaning}.`}
+  ];
+ });
+ const pool = [...BASE_Q, ...grammar, ...hanja];
+ return ["문법","한문","한시"].flatMap(area => shuffle(pool.filter(q=>q.area===area)).slice(0,10)).map(q=>{
+  const choices=shuffle(q.choices.map((text,i)=>({text,correct:i+1===q.answer})));
+  return {...q,choices:choices.map(c=>c.text),answer:choices.findIndex(c=>c.correct)+1,
+   explain:q.explain.replace(/[①②③④]/g,m=>MARK[choices.findIndex(c=>c.text===q.choices[MARK.indexOf(m)])])};
+ });
+}
+let Q = BASE_Q;
+try {
+ const active = JSON.parse(localStorage.getItem("g7-active-set-v1") || "null");
+ if (Array.isArray(active) && active.length === 30 && active.every(q=>q && ["문법","한문","한시"].includes(q.area) && Array.isArray(q.choices) && q.choices.length===4 && Number.isInteger(q.answer) && q.answer>=1 && q.answer<=4)) Q=active;
+} catch(e) {}
+
 const AREAS = ["문법", "한문", "한시"];
 const AREA_LABEL = { "문법": "국어 문법", "한문": "한문", "한시": "한시" };
 const MARK = ["①", "②", "③", "④"];
 const KEY = "g7-mock-v1";
+const NOTE_KEY = "g7-notebook-v1";
+let notes = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(NOTE_KEY) || "{}");
+  if (saved && typeof saved === "object" && !Array.isArray(saved)) notes = saved;
+} catch (e) {}
+let noteStorageFailed = false;
+function saveNotes() {
+  try { localStorage.setItem(NOTE_KEY, JSON.stringify(notes)); noteStorageFailed = false; }
+  catch (e) { noteStorageFailed = true; }
+}
+function collectWrongAnswers() {
+  for (const {q, i} of visible()) {
+    if (state.picks[i] !== q.answer) notes[JSON.stringify([q.stem, q.passage || "", [...q.choices].sort()])] = {q, number:i+1, pick: state.picks[i] || null};
+  }
+  saveNotes();
+}
+function renderNotes() {
+  const entries = Object.entries(notes).map(([key,note]) => ({key, q:note.q || BASE_Q[+key], number:note.number || +key+1, pick:note.pick})).filter(entry=>entry.q);
+  $("notebookTitle").textContent = `오답노트 · ${entries.length}문항`;
+  $("notebookStatus").textContent = noteStorageFailed
+    ? "브라우저 저장이 차단되어 새로고침하면 오답노트가 사라질 수 있습니다."
+    : "채점하면 오답과 미응답이 자동 저장됩니다. 이 브라우저에 저장되며 다시 풀어도 남습니다.";
+  $("notebookItems").innerHTML = entries.length ? entries.map(({q, number, pick}, noteIndex) => {
+    return `<article class="note-entry"><div class="q-stem"><span class="q-no">${number}.</span><span>${q.stem}</span></div>
+      <span class="q-tag">${q.tag}</span>
+      ${q.passage ? `<div class="passage${q.area === "한시" ? " poem" : ""}">${q.passage}${q.cap ? `<span class="cap">${q.cap}</span>` : ""}</div>` : ""}
+      <ul class="choices">${q.choices.map((c,k) => `<li><span>${MARK[k]} ${c}</span></li>`).join("")}</ul>
+      <div class="explain"><b>내 답 ${MARK[pick - 1] || "미응답"} · 정답 ${MARK[q.answer - 1]}</b><br>${q.explain}</div>
+      <button class="btn ghost" data-remove-note="${noteIndex}" aria-label="${number}번 오답노트에서 삭제">복습 완료 · 삭제</button></article>`;
+  }).join("") : `<p class="meta">저장된 오답이 없습니다. 문제를 풀고 채점해 보세요.</p>`;
+}
 
 let state = { area: "all", picks: {}, graded: false, onlyWrong: false, started: Date.now(), stoppedAt: null };
 try {
@@ -411,6 +529,8 @@ function render() {
   const answered = items.filter(({ i }) => state.picks[i]).length;
   $("count").textContent = `${AREA_LABEL[state.area] || "전체"} · ${answered} / ${items.length} 표기`;
   $("submit").hidden = state.graded;
+  $("progress").textContent = state.graded ? "채점 완료 · 오답노트에 저장했습니다." : answered === items.length ? "모두 풀었습니다. 채점하기를 눌러 결과를 확인하세요." : "답안 선택 후 채점하기를 눌러 주세요.";
+  renderNotes();
 
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-pressed", String(t.dataset.area === state.area)));
 
@@ -447,13 +567,31 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   save(); render(); tick(); window.scrollTo(0, 0);
 }));
 $("submit").addEventListener("click", () => {
-  state.graded = true; state.stoppedAt = Date.now(); save(); render();
+  state.graded = true; state.stoppedAt = Date.now(); collectWrongAnswers(); save(); render();
 });
 $("reset").addEventListener("click", () => {
   state.picks = {}; state.graded = false; state.onlyWrong = false; state.started = Date.now(); state.stoppedAt = null;
   save(); render(); tick(); window.scrollTo(0, 0);
 });
 $("onlyWrong").addEventListener("change", (e) => { state.onlyWrong = e.target.checked; save(); render(); });
+
+$("notebookItems").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-remove-note]");
+  if (!button) return;
+  const keys = Object.entries(notes).filter(([key,note])=>note.q || BASE_Q[+key]).map(([key])=>key);
+  delete notes[keys[+button.dataset.removeNote]]; saveNotes(); renderNotes();
+});
+
+$("newSet").addEventListener("click", () => {
+ if (!state.graded && Object.values(state.picks).some(Boolean) && !confirm("현재 답안은 초기화됩니다. 새 문제 세트를 만들까요?")) return;
+ const next = createSet();
+ try {
+  localStorage.setItem("g7-active-set-v1", JSON.stringify(next));
+ } catch(e) { alert("브라우저 저장 공간을 사용할 수 없어 새 세트를 저장하지 못했습니다."); return; }
+ Q = next;
+ state = {area:"all",picks:{},graded:false,onlyWrong:false,started:Date.now(),stoppedAt:null};
+ save(); render(); tick(); window.scrollTo(0,0);
+});
 
 function tick() {
   const ms = (state.stoppedAt || Date.now()) - state.started;
