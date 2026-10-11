@@ -44,7 +44,6 @@ header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: 
 .eyebrow { font-size: 12px; letter-spacing: .08em; color: var(--omr); font-weight: 600; }
 h1 { font-family: var(--font-text); font-size: clamp(24px, 4vw, 32px); margin: 2px 0 0; text-wrap: balance; letter-spacing: -.01em; }
 .meta { color: var(--muted); font-size: 13px; }
-.timer { font-family: var(--font-num); font-size: 20px; font-variant-numeric: tabular-nums; }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 8px; }
 .tab { border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 7px 14px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; }
 .tab[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
@@ -129,7 +128,6 @@ footer a { color: inherit; }
       <h1>7급 국어 기출 모의고사</h1>
       <div class="meta">국어 문법 · 한문 · 한시, 영역별 10문항씩 모두 30문항</div>
     </div>
-    <div class="timer" id="timer" aria-live="off" title="경과 시간">00:00</div>
   </header>
 
   <div class="tabs" role="group" aria-label="영역 선택">
@@ -479,10 +477,10 @@ function renderNotes() {
   }).join("") : `<p class="meta">저장된 오답이 없습니다. 문제를 풀고 채점해 보세요.</p>`;
 }
 
-let state = { area: "all", picks: {}, graded: false, onlyWrong: false, started: Date.now(), stoppedAt: null };
+let state = { area: "all", picks: {}, graded: false, onlyWrong: false };
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-  if (saved && typeof saved === "object") state = Object.assign(state, saved);
+  if (saved && typeof saved === "object") state = Object.fromEntries(Object.keys(state).map(key => [key, saved[key] ?? state[key]]));
 } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -564,15 +562,15 @@ $("omr").addEventListener("click", (e) => {
 });
 document.querySelectorAll(".tab[data-area]").forEach(t => t.addEventListener("click", () => {
   state.area = t.dataset.area; state.graded = false; state.onlyWrong = false;
-  state.picks = {}; state.started = Date.now(); state.stoppedAt = null;
-  save(); render(); tick(); window.scrollTo(0, 0);
+  state.picks = {};
+  save(); render(); window.scrollTo(0, 0);
 }));
 $("submit").addEventListener("click", () => {
-  state.graded = true; state.stoppedAt = Date.now(); collectWrongAnswers(); save(); render();
+  state.graded = true; collectWrongAnswers(); save(); render();
 });
 $("reset").addEventListener("click", () => {
-  state.picks = {}; state.graded = false; state.onlyWrong = false; state.started = Date.now(); state.stoppedAt = null;
-  save(); render(); tick(); window.scrollTo(0, 0);
+  state.picks = {}; state.graded = false; state.onlyWrong = false;
+  save(); render(); window.scrollTo(0, 0);
 });
 $("onlyWrong").addEventListener("change", (e) => { state.onlyWrong = e.target.checked; save(); render(); });
 
@@ -599,16 +597,10 @@ $("newSet").addEventListener("click", () => {
   localStorage.setItem("g7-active-set-v1", JSON.stringify(next));
  } catch(e) { alert("브라우저 저장 공간을 사용할 수 없어 새 세트를 저장하지 못했습니다."); return; }
  Q = next;
- state = {area:"all",picks:{},graded:false,onlyWrong:false,started:Date.now(),stoppedAt:null};
- save(); render(); tick(); window.scrollTo(0,0);
+ state = {area:"all",picks:{},graded:false,onlyWrong:false};
+ save(); render(); window.scrollTo(0,0);
 });
 
-function tick() {
-  const ms = (state.stoppedAt || Date.now()) - state.started;
-  const s = Math.max(0, Math.floor(ms / 1000));
-  $("timer").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-}
-setInterval(tick, 1000); tick();
 render();
 </script>
 </body>
